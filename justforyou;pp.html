@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Just For U :pp</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a0a1a 25%, #0a0a1a 50%, #0f0a15 75%, #0a0a0a 100%);
+            width: 100vw;
+            height: 100vh;
+        }
+        
+        canvas {
+            display: block;
+            background: transparent;
+        }
+        
+        #text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Dancing Script', cursive;
+            font-size: clamp(28px, 8vw, 60px);
+            color: transparent;
+            -webkit-text-stroke: 2px rgba(255, 255, 255, 0.8);
+            text-stroke: 2px rgba(255, 255, 255, 0.8);
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 10;
+            opacity: 0;
+            animation: pulseGlow 2s ease-in-out infinite;
+            padding: 0 20px;
+            max-width: 95vw;
+            text-align: center;
+        }
+        
+        @keyframes pulseGlow {
+            0%, 100% {
+                -webkit-text-stroke: 2px rgba(255, 255, 255, 0.3);
+                text-stroke: 2px rgba(255, 255, 255, 0.3);
+                filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.2));
+            }
+            50% {
+                -webkit-text-stroke: 2px rgba(255, 255, 255, 1);
+                text-stroke: 2px rgba(255, 255, 255, 1);
+                filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.8))
+                        drop-shadow(0 0 25px rgba(255, 200, 100, 0.5));
+            }
+        }
+        
+        #greeting {
+            position: absolute;
+            top: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: system-ui, -apple-system, sans-serif;
+            font-size: clamp(20px, 4vw, 36px);
+            color: transparent;
+            -webkit-text-stroke: 2px rgba(255, 255, 255, 0.6);
+            text-stroke: 2px rgba(255, 255, 255, 0.6);
+            z-index: 10;
+            pointer-events: none;
+            opacity: 0.8;
+        }
+        
+        #greeting.hidden {
+            display: none;
+        }
+        
+        #countdown {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Dancing Script', cursive;
+            font-size: clamp(48px, 12vw, 120px);
+            color: transparent;
+            -webkit-text-stroke: 3px rgba(255, 255, 255, 0.8);
+            text-stroke: 3px rgba(255, 255, 255, 0.8);
+            z-index: 10;
+            pointer-events: none;
+            animation: countdownPulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes countdownPulse {
+            0%, 100% {
+                -webkit-text-stroke: 3px rgba(255, 255, 255, 0.3);
+                text-stroke: 3px rgba(255, 255, 255, 0.3);
+                filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+            }
+            50% {
+                -webkit-text-stroke: 3px rgba(255, 255, 255, 1);
+                text-stroke: 3px rgba(255, 255, 255, 1);
+                filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.9))
+                        drop-shadow(0 0 50px rgba(255, 107, 157, 0.6));
+            }
+        }
+        
+        #countdown.hidden {
+            display: none;
+        }
+        
+        canvas.hidden {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            #text {
+                top: 50%;
+                font-size: clamp(32px, 9vw, 50px);
+                -webkit-text-stroke: 2.5px rgba(255, 255, 255, 0.8);
+                text-stroke: 2.5px rgba(255, 255, 255, 0.8);
+            }
+        }
+        
+        @media (max-width: 480px) {
+            #text {
+                top: 50%;
+                font-size: clamp(28px, 8vw, 42px);
+                -webkit-text-stroke: 2px rgba(255, 255, 255, 0.8);
+                text-stroke: 2px rgba(255, 255, 255, 0.8);
+            }
+        }
+        
+        #musicPlayer {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+        
+        #musicPlayer.minimized {
+            width: 70px;
+            height: 70px;
+        }
+        
+        #musicPlayer.expanded {
+            width: 320px;
+            max-height: calc(100vh - 40px);
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255,255,255,0.3) transparent;
+        }
+        
+        #musicPlayer.expanded::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        #musicPlayer.expanded::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        #musicPlayer.expanded::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.3);
+            border-radius: 3px;
+        }
+        
+        #cdContainer {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        #cdContainer:hover {
+            transform: scale(1.05);
+        }
+        
+        .minimized #cdContainer {
+            width: 70px;
+            height: 70px;
+        }
+        
+        .expanded #cdContainer {
+            width: 80px;
+            height: 80px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+        
+        #cdDisc {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #1a1a1a 0%, #3a3a3a 50%, #1a1a1a 100%);
+            position: relative;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(255, 255, 255, 0.1);
+            animation: none;
+        }
+        
+        #cdDisc.playing {
+            animation: spin 3s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        #cdDisc::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 35%;
+            height: 35%;
+            background: radial-gradient(circle, #000 30%, #444 70%, #000 100%);
+            border-radius: 50%;
+        }
+        
+        #cdDisc::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, transparent 0deg, rgba(255,255,255,0.1) 20deg, transparent 40deg);
+        }
+        
+        .playerContent {
+            display: none;
+        }
+        
+        .expanded .playerContent {
+            display: block;
+        }
+        
+        .playerContent {
+            display: none;
+        }
+        
+        .expanded .playerContent {
+            display: block;
+        }
+        
+        .song-item {
+            transition: all 0.2s;
+        }
+        
+        .song-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateX(-2px);
+        }
+        
+        .song-item.active {
+            background: rgba(255, 107, 157, 0.3);
+            border-left: 3px solid #ff6b9d;
+        }
+        
+        #closeBtn {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .expanded #closeBtn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                width: 30px;
+                height: 30px;
+                background: rgba(255, 255, 255, 0.1);
+                border: none;
+                border-radius: 50%;
+                cursor: pointer;
+                z-index: 10;
+                transition: all 0.2s;
+            }
+            
+            .expanded #closeBtn:hover {
+                background: rgba(255, 255, 255, 0.2);
+            }
+            
+            .expanded #closeBtn svg {
+                width: 16px;
+                height: 16px;
+                fill: white;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            #musicPlayer.expanded {
+                width: 280px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            #musicPlayer {
+                right: 10px;
+                bottom: 10px;
+            }
+            #musicPlayer.minimized {
+                width: 65px;
+                height: 65px;
+                padding: 3px;
+            }
+            #musicPlayer.expanded {
+                width: calc(100vw - 20px);
+                max-height: calc(100vh - 20px);
+            }
+            .minimized #cdContainer {
+                width: 59px;
+                height: 59px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="greeting">Hi :pp</div>
+    <div id="countdown">00:00:00</div>
+    <div id="text"></div>
+    <canvas id="canvas" class="hidden"></canvas>
+    <div id="musicPlayer" class="minimized bg-black/95 backdrop-blur-md rounded-xl shadow-2xl">
+        <button id="closeBtn" onclick="closePlayer()">
+            <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+        <div id="cdContainer" class="mx-auto mb-0" onclick="togglePlayer()">
+            <div id="cdDisc"></div>
+        </div>
+        <div class="playerContent p-3">
+            <div class="text-center mb-2">
+                <div class="text-white text-sm font-bold truncate" id="songTitle">Select a song</div>
+                <div class="text-white/70 text-xs" id="songArtist">No artist</div>
+            </div>
+            <div class="relative w-full h-1.5 bg-white/20 rounded-full mb-1 cursor-pointer group" id="progressBar">
+                <div class="h-full bg-gradient-to-r from-pink-400 to-pink-600 rounded-full relative" id="progress" style="width: 0%">
+                    <div class="absolute -right-1.5 top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                </div>
+            </div>
+            <div class="flex justify-between text-white/60 text-[9px] mb-2">
+                <span id="currentTime">0:00</span>
+                <span id="duration">0:00</span>
+            </div>
+            <div class="flex justify-center items-center gap-2 mb-2">
+                <button class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition" id="prevBtn">
+                    <svg class="w-4 h-4 fill-white" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+                </button>
+                <button class="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition" id="playPauseBtn">
+                    <svg class="w-5 h-5 fill-white" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                </button>
+                <button class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition" id="nextBtn">
+                    <svg class="w-4 h-4 fill-white" viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+                </button>
+            </div>
+            <div class="flex items-center gap-2 pt-2 border-t border-white/10">
+                <button class="w-6 h-6 flex items-center justify-center" id="volumeBtn">
+                    <svg class="w-4 h-4 fill-white/70" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+                </button>
+                <input type="range" class="flex-1 h-1 bg-white/20 rounded appearance-none cursor-pointer" id="volumeSlider" min="0" max="100" value="70">
+            </div>
+            <div class="mt-3 pt-3 border-t border-white/10 max-h-48 overflow-y-auto" id="playlist"></div>
+        </div>
+    </div>
+    <audio id="audioPlayer" autoplay></audio>
+    
+    <script>
+        const songs = [
+            {file: 'musics/1. NIKI - lowkey.mp3', title: 'lowkey', artist: 'NIKI'},
+            {file: 'musics/2. LANY JTBC - ILYSB.mp3', title: 'ILYSB', artist: 'LANY JTBC'},
+            {file: 'musics/3. Bruno Major - Nothing.mp3', title: 'Nothing', artist: 'Bruno Major'},
+            {file: 'musics/4. Fiji Blue - Only when I look into your eyes.mp3', title: 'Only when I look into your eyes', artist: 'Fiji Blue'},
+            {file: 'musics/5. Bruno Major - Most Beautiful Thing.mp3', title: 'Most Beautiful Thing', artist: 'Bruno Major'},
+            {file: 'musics/6. Olivia Dean - So easy to Fall in love.mp3', title: 'So easy to Fall in love', artist: 'Olivia Dean'},
+            {file: 'musics/7. Dhruv - Double Take.mp3', title: 'Double Take', artist: 'Dhruv'},
+            {file: 'musics/8. Lauv - Paris in the rain.mp3', title: 'Paris in the rain', artist: 'Lauv'},
+            {file: 'musics/9. HYSB - Tip Toe.mp3', title: 'Tip Toe', artist: 'HYSB'},
+            {file: 'musics/10. Regina - Cutest Pair.mp3', title: 'Cutest Pair', artist: 'Regina'},
+            {file: 'musics/11. Claire - Backyard Boy.mp3', title: 'Backyard Boy', artist: 'Claire'},
+            {file: 'musics/12. Bruno Major - Easily.mp3', title: 'Easily', artist: 'Bruno Major'},
+            {file: 'musics/13. Yung Kai - Blue.mp3', title: 'Blue', artist: 'Yung Kai'},
+            {file: 'musics/14. I think They Call this Love.mp3', title: 'I think They Call this Love', artist: 'Unknown'},
+            {file: 'musics/15. NIKI - Every Summertime.mp3', title: 'Every Summertime', artist: 'NIKI'}
+        ];
+        
+        let currentSongIndex = 0;
+        let isPlaying = false;
+        let countdownComplete = false;
+        
+        const audio = document.getElementById('audioPlayer');
+        const musicPlayer = document.getElementById('musicPlayer');
+        const cdDisc = document.getElementById('cdDisc');
+        const countdownEl = document.getElementById('countdown');
+        const songTitle = document.getElementById('songTitle');
+        const songArtist = document.getElementById('songArtist');
+        const progress = document.getElementById('progress');
+        const progressBar = document.getElementById('progressBar');
+        const currentTimeEl = document.getElementById('currentTime');
+        const durationEl = document.getElementById('duration');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const volumeSlider = document.getElementById('volumeSlider');
+        const volumeBtn = document.getElementById('volumeBtn');
+        const playlistEl = document.getElementById('playlist');
+        
+        // Set initial volume
+        audio.volume = 0.7;
+        
+        function togglePlayer() {
+            const wasMinimized = musicPlayer.classList.contains('minimized');
+            musicPlayer.classList.toggle('minimized');
+            musicPlayer.classList.toggle('expanded');
+            
+            // Start playing on first expand if not already playing
+            if (wasMinimized && !isPlaying) {
+                audio.play().then(() => {
+                    isPlaying = true;
+                    cdDisc.classList.add('playing');
+                    playPauseBtn.innerHTML = '<svg class="w-5 h-5 fill-white" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+                }).catch(err => {
+                    console.log('Autoplay prevented:', err);
+                });
+            }
+        }
+        
+        function closePlayer() {
+            musicPlayer.classList.remove('expanded');
+            musicPlayer.classList.add('minimized');
+        }
+        
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+        
+        // Populate playlist
+        songs.forEach((song, index) => {
+            const songItem = document.createElement('div');
+            songItem.className = 'song-item p-2 mb-1 bg-white/10 rounded-lg cursor-pointer text-white text-xs';
+            songItem.innerHTML = `
+                <div class="font-semibold truncate">${song.title}</div>
+                <div class="text-white/60 text-[10px] truncate">${song.artist}</div>
+            `;
+            songItem.onclick = () => {
+                currentSongIndex = index;
+                loadSong(currentSongIndex);
+                if (isPlaying) audio.play();
+                else playPause();
+                updateActivePlaylistItem();
+            };
+            playlistEl.appendChild(songItem);
+        });
+        
+        function updateActivePlaylistItem() {
+            const items = playlistEl.querySelectorAll('.song-item');
+            items.forEach((item, index) => {
+                if (index === currentSongIndex) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        }
+        
+        function loadSong(index) {
+            const song = songs[index];
+            audio.src = song.file;
+            songTitle.textContent = song.title;
+            songArtist.textContent = song.artist;
+            progress.style.width = '0%';
+            updateActivePlaylistItem();
+        }
+        
+        function playPause() {
+            if (isPlaying) {
+                audio.pause();
+                cdDisc.classList.remove('playing');
+                playPauseBtn.innerHTML = '<svg class="w-5 h-5 fill-white" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+            } else {
+                audio.play();
+                cdDisc.classList.add('playing');
+                playPauseBtn.innerHTML = '<svg class="w-5 h-5 fill-white" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+            }
+            isPlaying = !isPlaying;
+        }
+        
+        function nextSong() {
+            currentSongIndex = (currentSongIndex + 1) % songs.length;
+            loadSong(currentSongIndex);
+            if (isPlaying) audio.play();
+        }
+        
+        function prevSong() {
+            currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
+            loadSong(currentSongIndex);
+            if (isPlaying) audio.play();
+        }
+        
+        audio.addEventListener('timeupdate', () => {
+            const percent = (audio.currentTime / audio.duration) * 100;
+            progress.style.width = percent + '%';
+            currentTimeEl.textContent = formatTime(audio.currentTime);
+        });
+        
+        audio.addEventListener('loadedmetadata', () => {
+            durationEl.textContent = formatTime(audio.duration);
+        });
+        
+        // Click to seek
+        progressBar.addEventListener('click', (e) => {
+            const rect = progressBar.getBoundingClientRect();
+            const percent = (e.clientX - rect.left) / rect.width;
+            audio.currentTime = percent * audio.duration;
+        });
+        
+        // Volume control
+        volumeSlider.addEventListener('input', (e) => {
+            audio.volume = e.target.value / 100;
+        });
+        
+        volumeBtn.addEventListener('click', () => {
+            if (audio.volume > 0) {
+                audio.volume = 0;
+                volumeSlider.value = 0;
+                volumeBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z" fill="rgba(255, 255, 255, 0.7)"/></svg>';
+            } else {
+                audio.volume = 0.7;
+                volumeSlider.value = 70;
+                volumeBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z" fill="rgba(255, 255, 255, 0.7)"/></svg>';
+            }
+        });
+        
+        audio.addEventListener('ended', nextSong);
+        
+        playPauseBtn.addEventListener('click', playPause);
+        nextBtn.addEventListener('click', nextSong);
+        prevBtn.addEventListener('click', prevSong);
+        
+        // Load first song and attempt autoplay
+        loadSong(0);
+        
+        // Try to autoplay - may be blocked by browser
+        audio.play().then(() => {
+            isPlaying = true;
+            cdDisc.classList.add('playing');
+            playPauseBtn.innerHTML = '<svg class="w-5 h-5 fill-white" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+        }).catch(err => {
+            console.log('Autoplay blocked by browser. User interaction required.');
+            // Browser blocked autoplay - will start when user clicks CD or play button
+        });
+        
+        // Close player when clicking outside
+        document.addEventListener('click', (e) => {
+            if (musicPlayer.classList.contains('expanded') && !musicPlayer.contains(e.target)) {
+                musicPlayer.classList.remove('expanded');
+                musicPlayer.classList.add('minimized');
+            }
+        });
+    </script>
+    <script>
+        // Target: January 1, 2026 12:00 AM Philippine Time
+        const TARGET_TIME = new Date(2026, 0, 1, 0, 0, 0);
+        
+        // Countdown to Philippine New Year
+        function updateCountdown() {
+            const now = new Date();
+            const phTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
+            
+            const diff = TARGET_TIME - phTime;
+            
+            if (diff <= 0) {
+                if (!countdownComplete) {
+                    countdownComplete = true;
+                    countdownEl.classList.add('hidden');
+                    document.getElementById('greeting').classList.add('hidden');
+                    canvas.classList.remove('hidden');
+                    startFireworks();
+                    typeWriter();
+                }
+                return;
+            }
+            
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+            
+            countdownEl.textContent = 
+                String(hours).padStart(2, '0') + ':' +
+                String(minutes).padStart(2, '0') + ':' +
+                String(seconds).padStart(2, '0');
+        }
+        
+        // Animated text on load
+        const textElement = document.getElementById('text');
+        const message = "Happy New Year, My Bri!";
+        let charIndex = 0;
+        
+        function typeWriter() {
+            if (charIndex < message.length) {
+                textElement.textContent += message.charAt(charIndex);
+                textElement.style.opacity = '1';
+                charIndex++;
+                setTimeout(typeWriter, 100); // 100ms per letter
+            }
+        }
+        
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+        
+        // Check if target time already passed on page load
+        const now = new Date();
+        const phTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
+        
+        if (phTime >= TARGET_TIME) {
+            // Time already passed, show fireworks immediately
+            countdownComplete = true;
+            countdownEl.classList.add('hidden');
+            document.getElementById('greeting').classList.add('hidden');
+            canvas.classList.remove('hidden');
+            setTimeout(() => {
+                startFireworks();
+                typeWriter();
+            }, 100);
+        } else {
+            // Time hasn't passed yet, start countdown
+            updateCountdown();
+            setInterval(updateCountdown, 1000);
+        }
+        
+        const particles = [];
+        const rockets = [];
+        const MAX_PARTICLES = 800;
+        const CLICK_COOLDOWN = 1000;
+        let lastClickTime = 0;
+        
+        class Particle {
+            constructor(startX, startY, targetX, targetY, color, size) {
+                this.startX = startX;
+                this.startY = startY;
+                this.x = startX;
+                this.y = startY;
+                this.targetX = targetX;
+                this.targetY = targetY;
+                this.color = color;
+                this.alpha = 1;
+                this.decay = Math.random() * 0.015 + 0.015; // Faster fade
+                this.size = size || Math.random() * 2 + 2;
+                this.progress = 0;
+                this.speed = 0.25; // Much faster burst
+                this.reached = false;
+                this.vx = 0;
+                this.vy = 0;
+            }
+            
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.alpha;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = this.color;
+                ctx.fill();
+                ctx.restore();
+            }
+            
+            update() {
+                if (!this.reached) {
+                    // Quick burst to target
+                    this.progress += this.speed;
+                    if (this.progress >= 1) {
+                        this.progress = 1;
+                        this.reached = true;
+                        // Calculate velocity for continuing motion
+                        this.vx = (this.targetX - this.startX) * 0.015;
+                        this.vy = (this.targetY - this.startY) * 0.015;
+                    }
+                    
+                    const ease = this.progress;
+                    this.x = this.startX + (this.targetX - this.startX) * ease;
+                    this.y = this.startY + (this.targetY - this.startY) * ease;
+                } else {
+                    // Continue outward with gravity
+                    this.vy += 0.15; // Gravity
+                    this.x += this.vx;
+                    this.y += this.vy;
+                }
+                
+                this.alpha -= this.decay;
+                this.draw();
+            }
+        }
+        
+        class Rocket {
+            constructor(x, targetY) {
+                this.x = x;
+                this.y = canvas.height;
+                this.targetY = targetY;
+                this.color = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                this.velocity = (canvas.height - targetY) / 60;
+                this.trail = [];
+            }
+            
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, 3, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+                
+                // Draw trail
+                this.trail.forEach((pos, index) => {
+                    ctx.beginPath();
+                    ctx.arc(pos.x, pos.y, 2, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255, 255, 255, ${index / this.trail.length * 0.5})`;
+                    ctx.fill();
+                });
+            }
+            
+            update() {
+                this.trail.push({x: this.x, y: this.y});
+                if (this.trail.length > 10) this.trail.shift();
+                
+                this.y -= this.velocity;
+                this.draw();
+                
+                return this.y <= this.targetY;
+            }
+        }
+        
+        // Create heart shape coordinates
+        function getHeartPoints(centerX, centerY, size) {
+            const points = [];
+            const segments = 80; // Optimized for performance
+            
+            for (let i = 0; i < segments; i++) {
+                const t = (i / segments) * Math.PI * 2;
+                // Parametric heart equation
+                const x = size * 16 * Math.pow(Math.sin(t), 3);
+                const y = -size * (13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+                
+                points.push({
+                    x: centerX + x,
+                    y: centerY + y
+                });
+            }
+            
+            return points;
+        }
+        
+        // Create firework explosion in heart shape
+        function createHeartFirework(x, y) {
+            const hue = Math.random() * 360;
+            const size = 4;
+            const points = getHeartPoints(x, y, size);
+            
+            // Main heart outline only - 2 particles per point
+            points.forEach((point, index) => {
+                const color = `hsl(${hue}, 100%, ${65 + Math.random() * 15}%)`;
+                particles.push(new Particle(x, y, point.x, point.y, color, 4));
+                
+                // Add one more for thickness every other point
+                if (index % 2 === 0) {
+                    particles.push(new Particle(x, y, point.x, point.y, `hsl(${hue}, 100%, 75%)`, 3));
+                }
+            });
+            
+            // Small center burst
+            for (let i = 0; i < 20; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const dist = Math.random() * 20 + 10;
+                const targetX = x + Math.cos(angle) * dist;
+                const targetY = y + Math.sin(angle) * dist;
+                particles.push(new Particle(x, y, targetX, targetY, `hsl(${hue}, 100%, 90%)`, 2));
+            }
+        }
+        
+        // Launch rockets periodically
+        function launchRocket() {
+            const x = Math.random() * canvas.width;
+            const targetY = Math.random() * (canvas.height * 0.4) + canvas.height * 0.1;
+            rockets.push(new Rocket(x, targetY));
+        }
+        
+        // Start fireworks when countdown ends
+        function startFireworks() {
+            // Initial burst
+            for (let i = 0; i < 3; i++) {
+                setTimeout(() => launchRocket(), i * 300);
+            }
+            
+            // Continuous launches - less frequent
+            setInterval(() => {
+                // Always spawn 3 rockets
+                for (let i = 0; i < 3; i++) {
+                    setTimeout(() => launchRocket(), i * 400);
+                }
+            }, 2000); // Every 2 seconds instead of 1
+            
+            // Click to create firework
+            canvas.addEventListener('click', (e) => {
+                const now = Date.now();
+                if (now - lastClickTime >= CLICK_COOLDOWN && particles.length < MAX_PARTICLES) {
+                    createHeartFirework(e.clientX, e.clientY);
+                    lastClickTime = now;
+                }
+            });
+            
+            // Touch support for mobile
+            canvas.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                const now = Date.now();
+                if (now - lastClickTime >= CLICK_COOLDOWN && particles.length < MAX_PARTICLES) {
+                    const touch = e.touches[0];
+                    createHeartFirework(touch.clientX, touch.clientY);
+                    lastClickTime = now;
+                }
+            });
+        }
+        
+        // Animation loop
+        function animate() {
+            if (countdownComplete) {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.15)'; // Faster fade, better performance
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // Update and draw rockets
+                for (let i = rockets.length - 1; i >= 0; i--) {
+                    const exploded = rockets[i].update();
+                    if (exploded) {
+                        createHeartFirework(rockets[i].x, rockets[i].y);
+                        rockets.splice(i, 1);
+                    }
+                }
+                
+                // Update and draw particles
+                for (let i = particles.length - 1; i >= 0; i--) {
+                    particles[i].update();
+                    if (particles[i].alpha <= 0) {
+                        particles.splice(i, 1);
+                    }
+                }
+                
+                // Remove oldest particles if exceeding max
+                if (particles.length > MAX_PARTICLES) {
+                    particles.splice(0, particles.length - MAX_PARTICLES);
+                }
+            }
+            
+            requestAnimationFrame(animate);
+        }
+        
+        animate();
+    </script>
+</body>
+</html>
